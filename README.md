@@ -109,12 +109,12 @@ Change `SESSION_SECRET` to something long and random before running in productio
 
 The seeder creates several accounts so you can test different permission levels straight away:
 
-| Name | Email | Password | Role |
-|------|-------|----------|------|
-| Admin User | admin@company.com | admin123 | Owner |
-| Jane Manager | jane@company.com | manager123 | Manager |
-| Bob Editor | bob@company.com | editor123 | Editor |
-| Alice Viewer | alice@company.com | viewer123 | Viewer |
+| Name           | Email               | Password   | Role    |
+|----------------|---------------------|------------|---------|
+| Admin User     | admin@company.com   | admin123   | Owner   |
+| Jane Manager   | jane@company.com    | manager123 | Manager |
+| Bob Editor     | bob@company.com     | editor123  | Editor  |
+| Alice Viewer   | alice@company.com   | viewer123  | Viewer  |
 
 ## A note on the risk engine
 
