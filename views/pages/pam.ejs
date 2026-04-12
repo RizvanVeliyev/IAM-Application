@@ -1,0 +1,94 @@
+<%- include('../partials/layout', {body: `
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title"><i class="bi bi-key me-2"></i>Request Elevated Access</span></div>
+      <div class="p-4">
+        <p class="fs-13 text-muted mb-3">Request temporary privilege escalation. All requests require admin approval and are time-limited.</p>
+        <form action="/pam/request" method="POST">
+          <div class="mb-3">
+            <label class="form-label fs-13 fw-500">Target Role</label>
+            <select name="targetRole" class="form-select" required>
+              <option value="">Select role...</option>
+              <option value="Admin">Admin</option>
+              <option value="Owner">Owner</option>
+              <option value="Editor">Editor</option>
+              <option value="Manager">Manager</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fs-13 fw-500">Duration (hours)</label>
+            <select name="durationHours" class="form-select">
+              <option value="1">1 hour</option>
+              <option value="2">2 hours</option>
+              <option value="4">4 hours</option>
+              <option value="8">8 hours</option>
+              <option value="24">24 hours</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fs-13 fw-500">Business Justification</label>
+            <textarea name="justification" class="form-control" rows="3" placeholder="Why do you need elevated access?" required></textarea>
+          </div>
+          <button class="btn btn-purple w-100"><i class="bi bi-send me-1"></i>Submit Request</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="panel mt-3">
+      <div class="panel-header"><span class="panel-title">PAM Controls</span></div>
+      <div class="p-4 fs-13 text-muted">
+        <div class="mb-2"><i class="bi bi-clock me-2 text-primary"></i>Auto-expiry enforced</div>
+        <div class="mb-2"><i class="bi bi-journal-check me-2 text-primary"></i>All sessions logged</div>
+        <div class="mb-2"><i class="bi bi-person-check me-2 text-primary"></i>Approval required</div>
+        <div><i class="bi bi-x-circle me-2 text-primary"></i>Instant revocation</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Privilege Requests</span>
+        <span class="badge" style="background:#EEEDFE;color:#534AB7">${requests.filter(r=>r.status==='Pending').length} Pending</span>
+      </div>
+      ${requests.length === 0 ? '<div class="p-4 text-center text-muted fs-13">No requests yet</div>' : `
+      <div style="overflow-x:auto">
+        <table class="iam-table">
+          <thead><tr><th>User</th><th>Role</th><th>Duration</th><th>Justification</th><th>Status</th><th>Expires</th><th>Actions</th></tr></thead>
+          <tbody>
+          ${requests.map(r => `
+            <tr>
+              <td class="fw-500 fs-13">${r.requestedByName}</td>
+              <td><span class="badge-role badge-admin">${r.targetRole}</span></td>
+              <td class="fs-12">${r.durationHours}h</td>
+              <td class="fs-12" style="max-width:180px">${r.justification}</td>
+              <td>
+                <span class="status-badge ${r.status==='Approved'?'status-active':r.status==='Pending'?'status-review':r.status==='Denied'||r.status==='Revoked'?'status-suspended':'status-inactive'}">
+                  ${r.status}
+                </span>
+              </td>
+              <td class="fs-11 text-muted">${r.expiresAt ? new Date(r.expiresAt).toLocaleString() : '—'}</td>
+              <td>
+                ${r.status === 'Pending' && isAdmin ? `
+                  <form action="/pam/${r._id}/approve" method="POST" class="d-inline">
+                    <button class="btn btn-sm" style="background:#EAF3DE;color:#3B6D11;font-size:11px">Approve</button>
+                  </form>
+                  <form action="/pam/${r._id}/deny" method="POST" class="d-inline ms-1">
+                    <button class="btn btn-sm" style="background:#FCEBEB;color:#A32D2D;font-size:11px">Deny</button>
+                  </form>
+                ` : r.status === 'Approved' && isAdmin ? `
+                  <form action="/pam/${r._id}/revoke" method="POST">
+                    <button class="btn btn-sm btn-outline-warning" style="font-size:11px">Revoke</button>
+                  </form>
+                ` : '—'}
+              </td>
+            </tr>
+          `).join('')}
+          </tbody>
+        </table>
+      </div>`}
+    </div>
+  </div>
+</div>
+`}) %>

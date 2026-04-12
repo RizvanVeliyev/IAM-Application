@@ -1,0 +1,33 @@
+<%- include('../partials/layout', {body: `
+<div class="panel">
+  <div class="panel-header">
+    <span class="panel-title">Audit Log</span>
+    <span class="text-muted fs-12">${logs.length} entries</span>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="iam-table">
+      <thead><tr>
+        <th>Event</th><th>Category</th><th>Performed By</th><th>Target</th><th>Risk</th><th>IP</th><th>Details</th><th>Time</th>
+      </tr></thead>
+      <tbody>
+      ${logs.map(log => `
+        <tr>
+          <td class="fw-500 fs-13">${log.action}</td>
+          <td>
+            <span class="log-dot d-inline-block me-1 ${log.category==='login'?'dot-green':log.category==='error'?'dot-red':log.category==='delete'?'dot-amber':log.category==='security'?'dot-red':log.category==='pam'?'dot-blue':'dot-blue'}"></span>
+            <span class="fs-12">${log.category}</span>
+          </td>
+          <td class="fs-12">${log.performedBy}</td>
+          <td class="fs-12">${log.targetUser || '—'}</td>
+          <td>
+            ${log.riskScore != null ? `<span class="pam-timer">${log.riskScore}</span>` : '<span class="text-muted fs-11">—</span>'}
+          </td>
+          <td class="fs-11 text-muted">${log.ip || '—'}</td>
+          <td class="fs-11 text-muted" style="max-width:200px">${log.details || '—'}</td>
+          <td class="fs-11 text-muted">${new Date(log.createdAt).toLocaleString()}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>
+`}) %>

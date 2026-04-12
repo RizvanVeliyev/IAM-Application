@@ -1,0 +1,90 @@
+<%- include('../partials/layout', {body: `
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title"><i class="bi bi-phone me-2"></i>Authenticator App (TOTP)</span></div>
+      <div class="p-4">
+        ${user.mfaEnabled ? `
+          <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded" style="background:#EAF3DE">
+            <i class="bi bi-check-circle-fill text-success fs-4"></i>
+            <div>
+              <div class="fw-500 fs-13">MFA is enabled</div>
+              <div class="fs-11 text-muted">Your account is protected with TOTP authentication</div>
+            </div>
+          </div>
+          <div class="mb-3 p-3 rounded" style="background:#f4f3f0;font-size:12px">
+            <strong>Backup codes remaining:</strong> ${user.mfaBackupCodes ? user.mfaBackupCodes.length : 0}
+          </div>
+          <form action="/mfa/disable" method="POST">
+            <button class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-x-circle me-1"></i>Disable MFA
+            </button>
+          </form>
+        ` : (typeof qrCode !== 'undefined' && qrCode ? `
+          <p class="fs-13 text-muted mb-3">Scan the QR code with Google Authenticator, Authy, or any TOTP app.</p>
+          <div class="text-center mb-3">
+            <img src="${qrCode}" alt="QR Code" style="border:4px solid #fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.1)">
+          </div>
+          <div class="mb-3 p-3 rounded" style="background:#f4f3f0;font-size:12px">
+            <strong>Manual key:</strong><br>
+            <code style="word-break:break-all">${secret}</code>
+          </div>
+          <form action="/mfa/confirm" method="POST">
+            <label class="form-label fs-13 fw-500">Enter code to confirm</label>
+            <div class="d-flex gap-2">
+              <input type="text" name="token" class="form-control" placeholder="000000" maxlength="6" required>
+              <button class="btn btn-purple px-4">Verify</button>
+            </div>
+          </form>
+        ` : `
+          <p class="fs-13 text-muted mb-4">Add a second layer of security to your account using a TOTP authenticator app.</p>
+          <form action="/mfa/setup" method="POST">
+            <button class="btn btn-purple"><i class="bi bi-qr-code me-2"></i>Set Up Authenticator</button>
+          </form>
+        `)}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="panel mb-3">
+      <div class="panel-header"><span class="panel-title"><i class="bi bi-info-circle me-2"></i>Supported Methods</span></div>
+      <div class="p-4">
+        <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded" style="background:#f4f3f0">
+          <i class="bi bi-phone fs-4 text-success"></i>
+          <div>
+            <div class="fw-500 fs-13">Authenticator App <span class="badge bg-success ms-1" style="font-size:10px">Supported</span></div>
+            <div class="fs-11 text-muted">Google Authenticator, Authy, 1Password</div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded" style="background:#f4f3f0">
+          <i class="bi bi-shield-lock fs-4" style="color:#888"></i>
+          <div>
+            <div class="fw-500 fs-13">Hardware Token <span class="badge ms-1" style="font-size:10px;background:#E6F1FB;color:#185FA5">Enterprise</span></div>
+            <div class="fs-11 text-muted">YubiKey, FIDO2 keys</div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-3 p-3 rounded" style="background:#f4f3f0">
+          <i class="bi bi-fingerprint fs-4" style="color:#888"></i>
+          <div>
+            <div class="fw-500 fs-13">Biometric <span class="badge ms-1" style="font-size:10px;background:#E6F1FB;color:#185FA5">Enterprise</span></div>
+            <div class="fs-11 text-muted">Fingerprint, Face ID via WebAuthn</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title"><i class="bi bi-shield-exclamation me-2"></i>Risk Triggers</span></div>
+      <div class="p-4 fs-13">
+        <p class="text-muted mb-3">MFA is automatically required when risk score ≥ 35:</p>
+        <div class="d-flex gap-2 mb-2"><span class="badge" style="background:#FAECE7;color:#993C1D">+25</span> New IP address</div>
+        <div class="d-flex gap-2 mb-2"><span class="badge" style="background:#FAECE7;color:#993C1D">+20</span> Unrecognised device</div>
+        <div class="d-flex gap-2 mb-2"><span class="badge" style="background:#FFF3CD;color:#664d03">+15</span> After-hours login</div>
+        <div class="d-flex gap-2 mb-2"><span class="badge" style="background:#FFF3CD;color:#664d03">+10</span> Weekend login</div>
+        <div class="d-flex gap-2"><span class="badge" style="background:#FCEBEB;color:#A32D2D">+30</span> ≥3 failed attempts</div>
+      </div>
+    </div>
+  </div>
+</div>
+`}) %>

@@ -1,0 +1,331 @@
+:root {
+  --purple: #534AB7;
+  --purple-light: #EEEDFE;
+  --purple-mid: #AFA9EC;
+  --teal: #0F6E56;
+  --teal-light: #E1F5EE;
+  --coral: #993C1D;
+  --coral-light: #FAECE7;
+  --blue: #185FA5;
+  --blue-light: #E6F1FB;
+  --sidebar-width: 220px;
+}
+
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f3f0; color: #1a1a1a; font-size: 14px; }
+
+/* Sidebar */
+#sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: #fff;
+  border-right: 1px solid #e5e3da;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 100;
+}
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px;
+  border-bottom: 1px solid #e5e3da;
+  font-weight: 600;
+  font-size: 16px;
+}
+.brand-icon {
+  width: 32px; height: 32px;
+  background: var(--purple);
+  color: var(--purple-light);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600;
+}
+.sidebar-section { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: .5px; padding: 12px 16px 4px; }
+
+#sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  margin: 2px 8px;
+  border-radius: 8px;
+  color: #666;
+  text-decoration: none;
+  font-size: 13px;
+  transition: all .15s;
+}
+#sidebar .nav-link:hover { background: #f4f3f0; color: #1a1a1a; }
+#sidebar .nav-link.active { background: var(--purple-light); color: var(--purple); font-weight: 500; }
+#sidebar .nav-link i { font-size: 15px; opacity: .8; }
+
+.sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid #e5e3da; }
+.user-info-sidebar { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.user-avatar-sm {
+  width: 32px; height: 32px;
+  background: var(--purple-light); color: var(--purple);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; flex-shrink: 0;
+}
+
+/* Page */
+#page-content { margin-left: var(--sidebar-width); flex: 1; min-height: 100vh; }
+.topbar {
+  background: #fff;
+  border-bottom: 1px solid #e5e3da;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+.main-body { padding: 28px; }
+
+/* Cards */
+.metric-card {
+  background: #fff;
+  border: 1px solid #e5e3da;
+  border-radius: 12px;
+  padding: 20px;
+}
+.metric-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+.metric-value { font-size: 28px; font-weight: 600; line-height: 1; }
+.metric-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+/* Panel */
+.panel {
+  background: #fff;
+  border: 1px solid #e5e3da;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.panel-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid #e5e3da;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-title { font-weight: 600; font-size: 14px; }
+
+/* Table */
+.iam-table { width: 100%; border-collapse: collapse; }
+.iam-table th { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: .4px; padding: 10px 18px; border-bottom: 1px solid #e5e3da; }
+.iam-table td { padding: 12px 18px; border-bottom: 1px solid #f0ede6; font-size: 13px; vertical-align: middle; }
+.iam-table tbody tr:hover td { background: #faf9f7; }
+.iam-table tbody tr:last-child td { border-bottom: none; }
+
+/* Avatar */
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.av-p { background: #EEEDFE; color: #534AB7; }
+.av-t { background: #E1F5EE; color: #0F6E56; }
+.av-c { background: #FAECE7; color: #993C1D; }
+.av-b { background: #E6F1FB; color: #185FA5; }
+
+/* Badges */
+.badge-role {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-owner { background: #FAECE7; color: #712B13; }
+.badge-admin { background: #EEEDFE; color: #3C3489; }
+.badge-editor { background: #E1F5EE; color: #0F6E56; }
+.badge-viewer { background: #E6F1FB; color: #0C447C; }
+.badge-auditor { background: #F1EFE8; color: #5F5E5A; }
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.status-active { background: #EAF3DE; color: #3B6D11; }
+.status-inactive { background: #F1EFE8; color: #5F5E5A; }
+.status-suspended { background: #FCEBEB; color: #A32D2D; }
+.status-review { background: #FAEEDA; color: #854F0B; }
+
+/* Log dots */
+.log-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.dot-green { background: #639922; }
+.dot-amber { background: #BA7517; }
+.dot-red { background: #E24B4A; }
+.dot-blue { background: #378ADD; }
+
+/* Permission matrix */
+.perm-table th, .perm-table td { text-align: center; padding: 10px 14px; }
+.perm-table th:first-child, .perm-table td:first-child { text-align: left; }
+.perm-check {
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid #ccc;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: all .15s;
+  vertical-align: middle;
+}
+.perm-check:checked {
+  background: var(--purple);
+  border-color: var(--purple);
+}
+.perm-check:checked::after {
+  content: '✓';
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Login page */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #EEEDFE 0%, #E6F1FB 100%);
+}
+.login-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.08);
+}
+.login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+.login-logo .brand-icon { width: 40px; height: 40px; font-size: 16px; }
+
+/* Utility */
+.fw-500 { font-weight: 500 !important; }
+.fs-11 { font-size: 11px; }
+.fs-12 { font-size: 12px; }
+.fs-13 { font-size: 13px; }
+.role-card {
+  background: #fff;
+  border: 1px solid #e5e3da;
+  border-radius: 12px;
+  padding: 20px;
+  height: 100%;
+}
+.role-card:hover { border-color: var(--purple-mid); }
+.form-control, .form-select { font-size: 13px; border-color: #e5e3da; }
+.form-control:focus, .form-select:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(83,74,183,.1); }
+.btn-purple { background: var(--purple); color: #fff; border: none; }
+.btn-purple:hover { background: #3C3489; color: #fff; }
+
+/* ── Advanced Feature Styles ───────────────────────────────────────────── */
+
+/* Risk score colors */
+.risk-low { color: #639922; }
+.risk-med { color: #BA7517; }
+.risk-high { color: #E24B4A; }
+
+/* MFA verify input */
+.mfa-input {
+  letter-spacing: 0.4em;
+  font-size: 28px !important;
+  text-align: center;
+  font-weight: 700;
+  font-family: monospace;
+  padding: 14px;
+}
+
+/* Lifecycle stage badges */
+.badge-pending { background: #FDF3E3; color: #854F0B; }
+.badge-offboarded { background: #f1efee; color: #666; }
+.badge-transfer { background: #EEEDFE; color: #534AB7; }
+
+/* Anomaly severity row highlights */
+.row-critical { background: #fff5f5 !important; }
+.row-high { background: #fffdf3 !important; }
+
+/* ABAC policy card */
+.abac-card {
+  border: 1px solid #e5e3da;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.abac-card:hover { border-color: #AFA9EC; }
+
+/* PAM status */
+.pam-pending { background: #FDF3E3; color: #854F0B; }
+.pam-approved { background: #E1F5EE; color: #0F6E56; }
+.pam-denied { background: #FCEBEB; color: #A32D2D; }
+.pam-expired { background: #f1efee; color: #666; }
+.pam-revoked { background: #FCEBEB; color: #A32D2D; }
+
+/* Manager role badge */
+.badge-manager { background: #FDF3E3; color: #854F0B; }
+
+/* Sidebar advanced section label */
+#sidebar .sidebar-section { font-size: 10px; }
+
+/* ─── v2.0 Feature additions ─────────────────────────────────────────── */
+.badge-manager { background: #E1F5EE; color: #0F6E56; }
+.badge-auditor { background: #F1EFE8; color: #5F5E5A; }
+
+/* Risk score bar */
+.risk-bar { height: 6px; border-radius: 3px; background: #e5e3da; overflow: hidden; }
+.risk-fill { height: 100%; border-radius: 3px; transition: width .4s; }
+
+/* Feature feature cards on dashboard */
+.feature-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+}
+
+/* Anomaly severity row colors */
+tr.severity-critical td { background: #fff8f8; }
+tr.severity-high td { background: #fffcf5; }
+
+/* PAM timer badge */
+.pam-timer {
+  font-family: monospace; font-size: 12px;
+  background: #EEEDFE; color: #534AB7;
+  padding: 2px 8px; border-radius: 4px;
+}
+
+/* SSO provider card hover */
+.sso-provider-card { transition: box-shadow .15s; cursor: pointer; }
+.sso-provider-card:hover { box-shadow: 0 4px 16px rgba(83,74,183,.12); }
+
+/* Lifecycle stage badges */
+.stage-active { background: #EAF3DE; color: #3B6D11; }
+.stage-offboarded { background: #FCEBEB; color: #A32D2D; }
+.stage-transfer { background: #EEEDFE; color: #534AB7; }
+.stage-pending { background: #FFF3CD; color: #664d03; }
+
+/* MFA setup card */
+.mfa-method-card {
+  border: 1.5px solid #e5e3da; border-radius: 10px;
+  padding: 16px; transition: border-color .15s;
+}
+.mfa-method-card:hover { border-color: var(--purple); }
+.mfa-method-card.active { border-color: #0F6E56; background: #f0faf5; }
+
+/* ABAC visual connector */
+.abac-connector { font-size: 20px; color: #ccc; font-weight: 300; }

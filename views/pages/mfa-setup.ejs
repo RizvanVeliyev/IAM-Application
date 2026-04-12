@@ -1,0 +1,32 @@
+<%- include('../partials/layout', {body: `
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">🔐 Set up Authenticator App (TOTP)</span></div>
+      <div class="p-4">
+        ${user.mfaEnabled ? '<div class="alert alert-success mb-4"><i class="bi bi-shield-check me-2"></i>MFA is currently <strong>enabled</strong> on your account.</div>' : ''}
+        <p class="text-muted fs-13">Scan this QR code with <strong>Google Authenticator</strong>, <strong>Authy</strong>, or any TOTP app.</p>
+        <div class="text-center my-4">
+          <img src="${qrDataUrl}" alt="MFA QR Code" style="border:6px solid #f4f3f0;border-radius:12px;width:200px">
+        </div>
+        <div class="mb-3 p-3 rounded" style="background:#f4f3f0">
+          <div class="fs-12 text-muted mb-1">Manual entry key</div>
+          <code style="font-size:13px;word-break:break-all">${secret}</code>
+        </div>
+        <form action="/mfa/setup" method="POST">
+          <div class="mb-3">
+            <label class="form-label fs-13 fw-500">Enter the 6-digit code to confirm</label>
+            <input type="text" name="token" class="form-control" placeholder="123456" maxlength="6" required autofocus>
+          </div>
+          <button class="btn btn-purple w-100"><i class="bi bi-check-circle me-1"></i> Activate MFA</button>
+        </form>
+        ${user.mfaEnabled ? `
+        <hr>
+        <form action="/mfa/disable" method="POST" onsubmit="return confirm('Disable MFA? Your account will be less secure.')">
+          <button class="btn btn-outline-danger w-100 btn-sm">Disable MFA</button>
+        </form>` : ''}
+      </div>
+    </div>
+  </div>
+</div>
+`}) %>

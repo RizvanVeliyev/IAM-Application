@@ -1,0 +1,123 @@
+<%- include('../partials/layout', {body: `
+<!-- Stats row -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="metric-card">
+      <div class="metric-label">Unresolved Alerts</div>
+      <div class="metric-value" style="color:${stats.unresolved>0?'#A32D2D':'#3B6D11'}">${stats.unresolved}</div>
+      <div class="metric-sub">${stats.total} total detected</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card">
+      <div class="metric-label">Critical Threats</div>
+      <div class="metric-value" style="color:#A32D2D">${stats.critical}</div>
+      <div class="metric-sub">Requires immediate action</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card">
+      <div class="metric-label">High Severity</div>
+      <div class="metric-value" style="color:#854F0B">${stats.high}</div>
+      <div class="metric-sub">Active threats</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card">
+      <div class="metric-label">AI Engine</div>
+      <div class="metric-value" style="font-size:18px;color:#0F6E56">Active</div>
+      <div class="metric-sub">Scanning every 15 min</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Alerts table -->
+  <div class="col-md-8">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title"><i class="bi bi-cpu me-2"></i>AI Anomaly Alerts</span>
+        <div class="d-flex gap-2">
+          <form action="/anomaly/scan" method="POST" class="d-inline">
+            <button class="btn btn-sm btn-purple"><i class="bi bi-search me-1"></i>Run Scan</button>
+          </form>
+          <form action="/anomaly/resolve-all" method="POST" class="d-inline">
+            <button class="btn btn-sm btn-outline-secondary">Resolve All</button>
+          </form>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        ${alerts.length === 0 ? '<div class="p-4 text-center text-muted fs-13">No anomalies detected</div>' : `
+        <table class="iam-table">
+          <thead><tr>
+            <th>Severity</th><th>Type</th><th>Description</th><th>User</th><th>Time</th><th>Action</th>
+          </tr></thead>
+          <tbody>
+          ${alerts.map(a => `
+            <tr>
+              <td>
+                <span class="status-badge ${
+                  a.severity==='Critical'?'status-suspended':
+                  a.severity==='High'?'':'status-review'
+                }" style="${a.severity==='High'?'background:#FAECE7;color:#993C1D':''}">
+                  ${a.severity}
+                </span>
+              </td>
+              <td><code style="font-size:11px">${a.type.replace(/_/g,' ')}</code></td>
+              <td style="font-size:12px;max-width:220px">${a.description || '—'}</td>
+              <td class="fs-12">${a.userName || a.ip || '—'}</td>
+              <td class="fs-11 text-muted">${new Date(a.createdAt).toLocaleString()}</td>
+              <td>
+                ${!a.resolved ? `<form action="/anomaly/${a._id}/resolve" method="POST">
+                  <button class="btn btn-sm btn-outline-success" style="font-size:11px">Resolve</button>
+                </form>` : '<span class="text-muted fs-11">✓ Resolved</span>'}
+              </td>
+            </tr>
+          `).join('')}
+          </tbody>
+        </table>`}
+      </div>
+    </div>
+  </div>
+
+  <!-- Risk Sessions + Type breakdown -->
+  <div class="col-md-4">
+    <div class="panel mb-3">
+      <div class="panel-header"><span class="panel-title">Alert Types</span></div>
+      <div class="p-4">
+        ${[
+          {type:'brute_force', label:'Brute Force', color:'#A32D2D', bg:'#FCEBEB'},
+          {type:'login_spike', label:'Login Spike', color:'#854F0B', bg:'#FAEEDA'},
+          {type:'after_hours', label:'After Hours', color:'#185FA5', bg:'#E6F1FB'},
+          {type:'new_location', label:'New Location', color:'#993C1D', bg:'#FAECE7'},
+          {type:'mass_action', label:'Mass Action', color:'#534AB7', bg:'#EEEDFE'},
+          {type:'privilege_abuse', label:'Privilege Abuse', color:'#A32D2D', bg:'#FCEBEB'},
+        ].map(t => {
+          const count = alerts.filter(a => a.type === t.type && !a.resolved).length;
+          return `<div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge" style="background:${t.bg};color:${t.color}">${t.label}</span>
+            <strong>${count}</strong>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Recent Risk Sessions</span></div>
+      <div class="p-3">
+        ${riskSessions.slice(0,6).map(s => `
+        <div class="d-flex justify-content-between align-items-start mb-2 pb-2 border-bottom" style="border-color:#f0ede6!important">
+          <div>
+            <div class="fs-12 fw-500">${s.email || 'Unknown'}</div>
+            <div class="fs-11 text-muted">${s.ip} · ${s.riskFactors && s.riskFactors.length ? s.riskFactors[0] : 'OK'}</div>
+          </div>
+          <span class="badge" style="font-size:10px;background:${s.riskScore>=70?'#FCEBEB':s.riskScore>=35?'#FAEEDA':'#EAF3DE'};color:${s.riskScore>=70?'#A32D2D':s.riskScore>=35?'#854F0B':'#3B6D11'}">
+            ${s.riskScore}/100
+          </span>
+        </div>`).join('')}
+        ${riskSessions.length === 0 ? '<div class="text-muted fs-12 text-center">No sessions yet</div>' : ''}
+      </div>
+    </div>
+  </div>
+</div>
+`}) %>

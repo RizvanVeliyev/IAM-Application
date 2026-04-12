@@ -1,0 +1,150 @@
+<%- include('../partials/layout', {body: `
+<!-- Metric cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-2">
+    <div class="metric-card">
+      <div class="metric-label">Total Users</div>
+      <div class="metric-value">${totalUsers}</div>
+      <div class="metric-sub">Active accounts</div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="metric-card">
+      <div class="metric-label">Roles</div>
+      <div class="metric-value">${totalRoles}</div>
+      <div class="metric-sub">RBAC roles</div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="metric-card">
+      <div class="metric-label">Failed Logins</div>
+      <div class="metric-value" style="color:#A32D2D">${failedLogins}</div>
+      <div class="metric-sub">Last 24h</div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="metric-card">
+      <div class="metric-label">AI Alerts</div>
+      <div class="metric-value" style="color:${unresolvedAlerts>0?'#854F0B':'#3B6D11'}">${unresolvedAlerts}</div>
+      <div class="metric-sub">${criticalAlerts} critical</div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="metric-card">
+      <div class="metric-label">PAM Pending</div>
+      <div class="metric-value" style="color:${pamPending>0?'#534AB7':'#3B6D11'}">${pamPending}</div>
+      <div class="metric-sub">Awaiting approval</div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="metric-card">
+      <div class="metric-label">Offboarding</div>
+      <div class="metric-value" style="color:${pendingOffboard>0?'#993C1D':'#3B6D11'}">${pendingOffboard}</div>
+      <div class="metric-sub">In progress</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <!-- Recent activity -->
+  <div class="col-md-6">
+    <div class="panel h-100">
+      <div class="panel-header">
+        <span class="panel-title">Recent Activity</span>
+        <a href="/logs" class="btn btn-sm btn-outline-secondary">View all</a>
+      </div>
+      <div>
+        ${recentLogs.map(log => `
+        <div class="d-flex gap-3 px-4 py-3 border-bottom" style="border-color:#f0ede6!important">
+          <div class="log-dot ${log.category==='login'?'dot-green':log.category==='error'?'dot-red':log.category==='delete'?'dot-amber':log.category==='security'?'dot-red':log.category==='pam'?'dot-blue':log.category==='lifecycle'?'dot-blue':'dot-blue'}" style="margin-top:5px;flex-shrink:0"></div>
+          <div>
+            <div style="font-size:13px">${log.action} ${log.targetUser?'— <strong>'+log.targetUser+'</strong>':''}</div>
+            <div style="font-size:11px;color:#aaa">${log.performedBy} · ${new Date(log.createdAt).toLocaleString()} ${log.riskScore!=null?'<span style="color:#854F0B">· Risk: '+log.riskScore+'</span>':''}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Anomaly + PAM alerts -->
+  <div class="col-md-6">
+    <div class="panel mb-3">
+      <div class="panel-header">
+        <span class="panel-title"><i class="bi bi-cpu me-1"></i>AI Anomaly Alerts</span>
+        <a href="/anomaly" class="btn btn-sm btn-outline-secondary">Manage</a>
+      </div>
+      <div class="p-3">
+        ${recentAlerts.length === 0 ? '<div class="text-center text-muted fs-13 py-2">✓ No active threats</div>' :
+          recentAlerts.map(a => `<div class="d-flex align-items-start gap-3 mb-2 p-2 rounded" style="background:${a.severity==='Critical'?'#FCEBEB':a.severity==='High'?'#FAEEDA':'#FFF3CD'}">
+            <div class="log-dot dot-red" style="margin-top:5px;flex-shrink:0"></div>
+            <div>
+              <div class="fs-12 fw-500">${a.type.replace(/_/g,' ')} <span class="badge" style="font-size:10px;background:#A32D2D;color:#fff">${a.severity}</span></div>
+              <div class="fs-11 text-muted">${a.description}</div>
+            </div>
+          </div>`).join('')
+        }
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Security Features</span></div>
+      <div class="p-3">
+        <div class="row g-2 fs-12">
+          ${[
+            {icon:'shield-check', label:'Risk Auth', color:'#0F6E56', bg:'#E1F5EE'},
+            {icon:'phone', label:'MFA Active', color:'#534AB7', bg:'#EEEDFE'},
+            {icon:'diagram-3', label:'ABAC Rules', color:'#185FA5', bg:'#E6F1FB'},
+            {icon:'shield-lock', label:'Password Policy', color:'#854F0B', bg:'#FAEEDA'},
+            {icon:'arrow-repeat', label:'Lifecycle', color:'#0F6E56', bg:'#E1F5EE'},
+            {icon:'key', label:'PAM Guard', color:'#993C1D', bg:'#FAECE7'},
+          ].map(f => `<div class="col-4">
+            <div class="p-2 rounded d-flex align-items-center gap-2" style="background:${f.bg}">
+              <i class="bi bi-${f.icon}" style="color:${f.color}"></i>
+              <span style="color:${f.color};font-weight:500">${f.label}</span>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-5">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Users by Role</span></div>
+      <div class="p-4">
+        ${roleCounts.map(rc => `
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <span class="badge-role badge-${rc._id.toLowerCase()}">${rc._id}</span>
+          <span style="font-size:22px;font-weight:600">${rc.count}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Quick Actions</span></div>
+      <div class="p-4">
+        <div class="row g-2">
+          ${[
+            {href:'/users/new', icon:'person-plus', label:'Add User', desc:'Provision new account', color:'#534AB7', bg:'#EEEDFE'},
+            {href:'/pam', icon:'key', label:'PAM Requests', desc:'Review escalations', color:'#993C1D', bg:'#FAECE7'},
+            {href:'/anomaly', icon:'cpu', label:'Run AI Scan', desc:'Detect threats now', color:'#A32D2D', bg:'#FCEBEB'},
+            {href:'/lifecycle', icon:'arrow-repeat', label:'Lifecycle', desc:'Onboard or offboard', color:'#0F6E56', bg:'#E1F5EE'},
+            {href:'/abac', icon:'diagram-3', label:'ABAC Rules', desc:'Manage access policies', color:'#185FA5', bg:'#E6F1FB'},
+            {href:'/password-policy', icon:'shield-lock', label:'Password Policy', desc:'Manage password rules', color:'#854F0B', bg:'#FAEEDA'},
+          ].map(a => `
+          <div class="col-md-4">
+            <a href="${a.href}" class="d-block p-3 rounded text-decoration-none" style="background:${a.bg};transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+              <i class="bi bi-${a.icon} fs-5 mb-1 d-block" style="color:${a.color}"></i>
+              <div class="fw-500 fs-13" style="color:${a.color}">${a.label}</div>
+              <div class="fs-11 text-muted">${a.desc}</div>
+            </a>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`}) %>

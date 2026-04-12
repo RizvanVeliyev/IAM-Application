@@ -1,0 +1,137 @@
+<%- include('../partials/layout', {body: `
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title"><i class="bi bi-diagram-3 me-2"></i>New ABAC Policy</span></div>
+      <div class="p-4">
+        <form action="/abac" method="POST">
+          <div class="mb-3">
+            <label class="form-label fs-13 fw-500">Policy Name</label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. Finance working hours" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fs-13 fw-500">Description</label>
+            <input type="text" name="description" class="form-control" placeholder="What does this policy enforce?">
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col">
+              <label class="form-label fs-13 fw-500">Role</label>
+              <select name="role" class="form-select">
+                <option value="">Any</option>
+                <option>Manager</option><option>Editor</option><option>Viewer</option><option>Admin</option>
+              </select>
+            </div>
+            <div class="col">
+              <label class="form-label fs-13 fw-500">Department</label>
+              <input type="text" name="department" class="form-control" placeholder="e.g. Finance">
+            </div>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col">
+              <label class="form-label fs-13 fw-500">Hours Start</label>
+              <input type="number" name="allowedHoursStart" class="form-control" min="0" max="23" value="8">
+            </div>
+            <div class="col">
+              <label class="form-label fs-13 fw-500">Hours End</label>
+              <input type="number" name="allowedHoursEnd" class="form-control" min="0" max="23" value="18">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fs-13 fw-500">Allowed Days</label>
+            <div class="d-flex gap-2 flex-wrap">
+              ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d,i)=>
+                `<label class="d-flex align-items-center gap-1 fs-12">
+                  <input type="checkbox" name="allowedDays" value="${i}" ${i>=1&&i<=5?'checked':''}> ${d}
+                </label>`
+              ).join('')}
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fs-13 fw-500">Resource</label>
+            <input type="text" name="resource" class="form-control" placeholder="e.g. reports, users, audit" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fs-13 fw-500">Allowed Actions</label>
+            <div class="d-flex gap-3">
+              ${['read','write','delete','export'].map(a=>
+                `<label class="fs-12 d-flex align-items-center gap-1">
+                  <input type="checkbox" name="actions" value="${a}" ${a==='read'?'checked':''}> ${a}
+                </label>`
+              ).join('')}
+            </div>
+          </div>
+          <button class="btn btn-purple w-100">Create Policy</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">ABAC Policies <span class="text-muted fs-12 fw-400">— Attribute-Based Access Control</span></span>
+        <span class="fs-12 text-muted">${policies.length} policies</span>
+      </div>
+      ${policies.length === 0 ? '<div class="p-4 text-center text-muted fs-13">No ABAC policies yet. Create one to restrict access by department, time, or device.</div>' : `
+      <div style="overflow-x:auto">
+        <table class="iam-table">
+          <thead><tr><th>Policy</th><th>Role</th><th>Dept</th><th>Hours</th><th>Resource</th><th>Actions</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+          ${policies.map(p => `
+          <tr>
+            <td>
+              <div class="fw-500 fs-13">${p.name}</div>
+              <div class="fs-11 text-muted">${p.description}</div>
+            </td>
+            <td class="fs-12">${p.role || '<span class="text-muted">Any</span>'}</td>
+            <td class="fs-12">${p.department || '<span class="text-muted">Any</span>'}</td>
+            <td class="fs-12">${p.allowedHoursStart}:00–${p.allowedHoursEnd}:00</td>
+            <td><code class="fs-11">${p.resource}</code></td>
+            <td class="fs-11">${(p.actions||[]).join(', ')}</td>
+            <td>
+              <span class="status-badge ${p.status==='Active'?'status-active':'status-inactive'}">${p.status}</span>
+            </td>
+            <td>
+              <form action="/abac/${p._id}/toggle" method="POST" class="d-inline">
+                <button class="btn btn-sm btn-outline-secondary" style="font-size:11px">Toggle</button>
+              </form>
+              <form action="/abac/${p._id}?_method=DELETE" method="POST" class="d-inline ms-1">
+                <button class="btn btn-sm" style="background:#FCEBEB;color:#A32D2D;font-size:11px" onclick="return confirm('Delete?')">Del</button>
+              </form>
+            </td>
+          </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`}
+    </div>
+
+    <div class="panel mt-3">
+      <div class="panel-header"><span class="panel-title">How ABAC Works</span></div>
+      <div class="p-4">
+        <div class="row g-3 fs-13 text-muted">
+          <div class="col-md-4">
+            <div class="p-3 rounded" style="background:#EEEDFE">
+              <strong style="color:#534AB7">RBAC Layer</strong><br>
+              Role → Admin, Manager, Viewer
+            </div>
+          </div>
+          <div class="col-md-1 d-flex align-items-center justify-content-center fs-4">+</div>
+          <div class="col-md-4">
+            <div class="p-3 rounded" style="background:#E1F5EE">
+              <strong style="color:#0F6E56">ABAC Layer</strong><br>
+              Dept · Time · Device · Location
+            </div>
+          </div>
+          <div class="col-md-1 d-flex align-items-center justify-content-center fs-4">=</div>
+          <div class="col-md-2">
+            <div class="p-3 rounded" style="background:#EAF3DE">
+              <strong style="color:#3B6D11">Access</strong><br>
+              Granted / Denied
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`}) %>

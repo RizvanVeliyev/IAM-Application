@@ -1,0 +1,45 @@
+<%- include('../partials/layout', {body: `
+<p class="text-muted fs-13 mb-4">Configure which resources each role can access and what actions they can perform.</p>
+
+${roles.map(role => {
+  const permMap = {};
+  role.permissions.forEach(p => { permMap[p.resource] = p.actions; });
+  return `
+  <div class="panel mb-4">
+    <div class="panel-header">
+      <div class="d-flex align-items-center gap-2">
+        <span class="fw-500">${role.name}</span>
+        ${role.isSystem ? '<span style="font-size:11px;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:4px">System</span>' : ''}
+        <span class="text-muted fs-12">${role.description}</span>
+      </div>
+    </div>
+    <form action="/permissions/${role._id}" method="POST">
+      <div class="table-responsive">
+        <table class="iam-table perm-table">
+          <thead>
+            <tr>
+              <th>Resource</th>
+              ${ACTIONS.map(a => `<th class="text-center">${a.charAt(0).toUpperCase()+a.slice(1)}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${RESOURCES.map(res => `
+            <tr>
+              <td class="fw-500">${res}</td>
+              ${ACTIONS.map(action => {
+                const checked = permMap[res] && permMap[res].includes(action) ? 'checked' : '';
+                return `<td class="text-center">
+                  <input type="checkbox" class="perm-check" name="${res}_${action}" ${checked}>
+                </td>`;
+              }).join('')}
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="px-4 py-3 border-top d-flex justify-content-end" style="border-color:#f0ede6">
+        <button type="submit" class="btn btn-purple btn-sm px-4">Save permissions</button>
+      </div>
+    </form>
+  </div>`;
+}).join('')}
+`}) %>

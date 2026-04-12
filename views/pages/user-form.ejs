@@ -1,0 +1,60 @@
+<%- include('../partials/layout', {body: `
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">${user ? 'Edit User' : 'Add New User'}</span>
+        <a href="/users" class="btn btn-sm btn-outline-secondary">← Back</a>
+      </div>
+      <div class="p-4">
+        <form action="${user ? '/users/'+user._id+'?_method=PUT' : '/users'}" method="POST">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fs-13 fw-500">Full Name</label>
+              <input type="text" name="name" class="form-control" value="${user ? user.name : ''}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fs-13 fw-500">Email</label>
+              <input type="email" name="email" class="form-control" value="${user ? user.email : ''}" required>
+            </div>
+          </div>
+          ${!user ? `<div class="mb-3">
+            <label class="form-label fs-13 fw-500">Password</label>
+            <input type="password" name="password" class="form-control" placeholder="Minimum 8 characters" required>
+          </div>` : ''}
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fs-13 fw-500">Role</label>
+              <select name="role" class="form-select">
+                ${['Owner','Admin','Manager','Editor','Viewer','Auditor'].map(r=>`<option value="${r}" ${user&&user.role===r?'selected':''}>${r}</option>`).join('')}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fs-13 fw-500">Department</label>
+              <input type="text" name="department" class="form-control" value="${user ? user.department||'' : ''}" placeholder="e.g. Engineering">
+            </div>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fs-13 fw-500">Status</label>
+              <select name="status" class="form-select">
+                ${['Active','Inactive','Suspended'].map(s=>`<option value="${s}" ${user&&user.status===s?'selected':''}>${s}</option>`).join('')}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fs-13 fw-500">Employee Type</label>
+              <select name="employeeType" class="form-select">
+                ${['Full-time','Contractor','Intern','External'].map(t=>`<option value="${t}" ${user&&user.employeeType===t?'selected':''}>${t}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-purple">${user ? 'Save Changes' : 'Create User'}</button>
+            <a href="/users" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+`}) %>

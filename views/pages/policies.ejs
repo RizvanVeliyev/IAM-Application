@@ -1,0 +1,85 @@
+<%- include('../partials/layout', {body: `
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <p class="text-muted fs-13 mb-0">Define and enforce security policies across your organization.</p>
+  <button class="btn btn-purple btn-sm px-3" data-bs-toggle="modal" data-bs-target="#createPolicyModal">+ New policy</button>
+</div>
+
+<div class="panel">
+  <table class="iam-table">
+    <thead>
+      <tr><th>Policy</th><th>Type</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      ${policies.map(p => `
+      <tr>
+        <td>
+          <div class="fw-500">${p.name}</div>
+          <div class="text-muted fs-12">${p.description}</div>
+        </td>
+        <td>
+          <span style="font-size:11px;background:#f4f3f0;color:#666;padding:2px 8px;border-radius:4px;border:1px solid #e5e3da">${p.type}</span>
+        </td>
+        <td>
+          <span class="status-badge status-${p.status.toLowerCase()}">${p.status}</span>
+        </td>
+        <td class="text-muted fs-12">${new Date(p.createdAt).toLocaleDateString()}</td>
+        <td>
+          <div class="d-flex gap-2">
+            <form action="/policies/${p._id}/toggle?_method=PUT" method="POST">
+              <button class="btn btn-sm btn-outline-secondary">${p.status === 'Active' ? 'Disable' : 'Enable'}</button>
+            </form>
+            <form action="/policies/${p._id}?_method=DELETE" method="POST" onsubmit="return confirm('Delete policy ${p.name}?')">
+              <button class="btn btn-sm" style="background:#FCEBEB;color:#A32D2D;border:1px solid #F7C1C1">Delete</button>
+            </form>
+          </div>
+        </td>
+      </tr>`).join('')}
+    </tbody>
+  </table>
+</div>
+
+<!-- Create Policy Modal -->
+<div class="modal fade" id="createPolicyModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" style="border-radius:12px;border:1px solid #e5e3da">
+      <div class="modal-header border-bottom" style="border-color:#e5e3da!important">
+        <h5 class="modal-title fs-15 fw-600">New policy</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/policies" method="POST">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-500 fs-13">Policy name</label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. IP Allowlist" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-500 fs-13">Type</label>
+            <select name="type" class="form-select">
+              <option>Authentication</option>
+              <option>Authorization</option>
+              <option>Data access</option>
+              <option>Session</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-500 fs-13">Description</label>
+            <textarea name="description" class="form-control" rows="2" placeholder="What does this policy enforce?"></textarea>
+          </div>
+          <div class="mb-1">
+            <label class="form-label fw-500 fs-13">Initial status</label>
+            <select name="status" class="form-select">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Review">Needs review</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer border-top" style="border-color:#e5e3da!important">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-purple btn-sm">Create policy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+`}) %>

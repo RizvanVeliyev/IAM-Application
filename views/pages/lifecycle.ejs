@@ -1,0 +1,129 @@
+<%- include('../partials/layout', {body: `
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-label">Active Users</div>
+      <div class="metric-value">${users.filter(u=>u.lifecycleStage==='Active').length}</div>
+      <div class="metric-sub">Fully provisioned</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-label">Pending Events</div>
+      <div class="metric-value" style="color:${pending>0?'#854F0B':'#3B6D11'}">${pending}</div>
+      <div class="metric-sub">Require action</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-label">Offboarded</div>
+      <div class="metric-value">${users.filter(u=>u.lifecycleStage==='Offboarded').length}</div>
+      <div class="metric-sub">Access revoked</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Actions panel -->
+  <div class="col-md-4">
+    <!-- Onboard -->
+    <div class="panel mb-3">
+      <div class="panel-header"><span class="panel-title"><i class="bi bi-person-plus me-2" style="color:#0F6E56"></i>Onboard User</span></div>
+      <div class="p-4">
+        <form action="/lifecycle/onboard" method="POST">
+          <div class="mb-2"><input type="text" name="name" class="form-control" placeholder="Full name" required></div>
+          <div class="mb-2"><input type="email" name="email" class="form-control" placeholder="Email" required></div>
+          <div class="mb-2"><input type="text" name="department" class="form-control" placeholder="Department"></div>
+          <div class="mb-3">
+            <select name="role" class="form-select">
+              <option value="Viewer">Viewer</option>
+              <option value="Editor">Editor</option>
+              <option value="Manager">Manager</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <button class="btn w-100" style="background:#0F6E56;color:#fff">Provision Account</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Transfer -->
+    <div class="panel mb-3">
+      <div class="panel-header"><span class="panel-title"><i class="bi bi-arrow-left-right me-2" style="color:#534AB7"></i>Transfer User</span></div>
+      <div class="p-4">
+        <form action="/lifecycle/transfer" method="POST">
+          <div class="mb-2">
+            <select name="userId" class="form-select" required>
+              <option value="">Select user...</option>
+              ${users.filter(u=>u.status==='Active').map(u=>`<option value="${u._id}">${u.name}</option>`).join('')}
+            </select>
+          </div>
+          <div class="mb-2"><input type="text" name="newDepartment" class="form-control" placeholder="New department" required></div>
+          <div class="mb-2">
+            <select name="newRole" class="form-select">
+              <option value="Viewer">Viewer</option><option value="Editor">Editor</option>
+              <option value="Manager">Manager</option><option value="Admin">Admin</option>
+            </select>
+          </div>
+          <div class="mb-3"><input type="text" name="notes" class="form-control" placeholder="Notes (optional)"></div>
+          <button class="btn btn-purple w-100">Transfer</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Offboard -->
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title"><i class="bi bi-person-dash me-2" style="color:#A32D2D"></i>Offboard User</span></div>
+      <div class="p-4">
+        <form action="/lifecycle/offboard" method="POST" onsubmit="return confirm('Permanently revoke all access?')">
+          <div class="mb-2">
+            <select name="userId" class="form-select" required>
+              <option value="">Select user...</option>
+              ${users.filter(u=>u.status!=='Offboarded').map(u=>`<option value="${u._id}">${u.name}</option>`).join('')}
+            </select>
+          </div>
+          <div class="mb-3"><textarea name="notes" class="form-control" rows="2" placeholder="Reason for offboarding"></textarea></div>
+          <button class="btn w-100" style="background:#A32D2D;color:#fff">Revoke All Access</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Events timeline -->
+  <div class="col-md-8">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Lifecycle Timeline</span></div>
+      ${events.length === 0 ? '<div class="p-4 text-center text-muted fs-13">No lifecycle events yet</div>' : `
+      <div style="overflow-x:auto">
+        <table class="iam-table">
+          <thead><tr><th>User</th><th>Event</th><th>Change</th><th>By</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody>
+          ${events.map(e => `<tr>
+            <td class="fw-500 fs-13">${e.userName}</td>
+            <td>
+              <span class="badge" style="font-size:11px;background:${
+                e.eventType==='Onboarding'?'#E1F5EE':
+                e.eventType==='Offboarding'?'#FCEBEB':
+                e.eventType==='Transfer'?'#EEEDFE':'#E6F1FB'
+              };color:${
+                e.eventType==='Onboarding'?'#0F6E56':
+                e.eventType==='Offboarding'?'#A32D2D':
+                e.eventType==='Transfer'?'#534AB7':'#185FA5'
+              }">${e.eventType}</span>
+            </td>
+            <td class="fs-12">
+              ${e.fromDepartment&&e.toDepartment ? e.fromDepartment+' → '+e.toDepartment : ''}
+              ${e.fromRole&&e.toRole ? '<br><span class="text-muted">'+e.fromRole+' → '+e.toRole+'</span>' : ''}
+              ${e.notes ? '<span class="text-muted fs-11">'+e.notes.slice(0,40)+'</span>' : ''}
+            </td>
+            <td class="fs-12">${e.performedBy}</td>
+            <td><span class="status-badge ${e.status==='Completed'?'status-active':e.status==='Pending'?'status-review':'status-inactive'}">${e.status}</span></td>
+            <td class="fs-11 text-muted">${new Date(e.createdAt).toLocaleDateString()}</td>
+          </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`}
+    </div>
+  </div>
+</div>
+`}) %>

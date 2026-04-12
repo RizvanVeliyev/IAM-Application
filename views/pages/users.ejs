@@ -1,0 +1,64 @@
+<%
+const avMap = {'Owner':'av-c','Admin':'av-p','Manager':'av-t','Editor':'av-t','Viewer':'av-b','Auditor':'av-b'};
+function initials(name){ return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+%>
+<%- include('../partials/layout', {body: `
+<div class="d-flex gap-2 mb-4 align-items-center flex-wrap">
+  <form method="GET" action="/users" class="d-flex gap-2 flex-grow-1 flex-wrap">
+    <input type="text" name="search" class="form-control" style="max-width:220px" placeholder="Search users..." value="${search||''}">
+    <select name="role" class="form-select" style="max-width:130px">
+      <option value="">All roles</option>
+      ${['Owner','Admin','Manager','Editor','Viewer','Auditor'].map(r=>`<option value="${r}" ${role===r?'selected':''}>${r}</option>`).join('')}
+    </select>
+    <select name="status" class="form-select" style="max-width:130px">
+      <option value="">All statuses</option>
+      ${['Active','Inactive','Suspended','Offboarded'].map(s=>`<option value="${s}" ${status===s?'selected':''}>${s}</option>`).join('')}
+    </select>
+    <button type="submit" class="btn btn-outline-secondary btn-sm px-3">Filter</button>
+    <a href="/users" class="btn btn-outline-secondary btn-sm">Clear</a>
+  </form>
+  <a href="/users/new" class="btn btn-purple btn-sm px-3">+ Add user</a>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <span class="panel-title">Users <span class="text-muted fw-400 fs-13">(${users.length})</span></span>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="iam-table">
+      <thead><tr>
+        <th>User</th><th>Role</th><th>Department</th><th>MFA</th><th>Status</th><th>Last Login</th><th>Actions</th>
+      </tr></thead>
+      <tbody>
+      ${users.map(u => `
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-3">
+              <div class="avatar ${avMap[u.role]||'av-b'}">${initials(u.name)}</div>
+              <div>
+                <div class="fw-500 fs-13">${u.name}</div>
+                <div class="fs-11 text-muted">${u.email}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge-role badge-${u.role.toLowerCase()}">${u.role}</span></td>
+          <td class="fs-12">${u.department || '—'}</td>
+          <td>
+            <span style="font-size:18px">${u.mfaEnabled ? '🔐' : '🔓'}</span>
+          </td>
+          <td><span class="status-badge status-${u.status.toLowerCase()}">${u.status}</span></td>
+          <td class="fs-12 text-muted">${u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : 'Never'}</td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="/users/${u._id}/edit" class="btn btn-sm btn-outline-secondary" style="font-size:11px">Edit</a>
+              <form action="/users/${u._id}?_method=DELETE" method="POST" class="d-inline" onsubmit="return confirm('Delete user?')">
+                <button class="btn btn-sm" style="background:#FCEBEB;color:#A32D2D;font-size:11px">Del</button>
+              </form>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>
+`}) %>

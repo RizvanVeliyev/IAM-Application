@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> — AccessIQ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="d-flex" id="wrapper">
+  <nav id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">IQ</div>
+      <span class="brand-name">AccessIQ</span>
+    </div>
+
+    <div class="sidebar-section">Manage</div>
+    <a href="/dashboard" class="nav-link <%= title==='Dashboard'?'active':'' %>">
+      <i class="bi bi-grid-1x2"></i> Dashboard
+    </a>
+    <a href="/users" class="nav-link <%= title==='Users'?'active':'' %>">
+      <i class="bi bi-people"></i> Users
+    </a>
+    <a href="/roles" class="nav-link <%= title==='Roles'?'active':'' %>">
+      <i class="bi bi-shield-check"></i> Roles
+    </a>
+    <a href="/abac" class="nav-link <%= title==='ABAC Policies'?'active':'' %>">
+      <i class="bi bi-diagram-3"></i> ABAC Policies
+    </a>
+    <a href="/permissions" class="nav-link <%= title==='Permissions'?'active':'' %>">
+      <i class="bi bi-lock"></i> Permissions
+    </a>
+
+    <div class="sidebar-section mt-2">Security</div>
+    <a href="/anomaly" class="nav-link <%= title==='Anomaly Detection'?'active':'' %>">
+      <i class="bi bi-cpu"></i> AI Anomaly
+    </a>
+    <a href="/pam" class="nav-link <%= title==='Privileged Access'?'active':'' %>">
+      <i class="bi bi-key"></i> PAM
+    </a>
+    <a href="/mfa" class="nav-link <%= title==='MFA Settings'?'active':'' %>">
+      <i class="bi bi-phone"></i> MFA
+    </a>
+    <a href="/password-policy" class="nav-link <%= title==='Password Policy'?'active':'' %>">
+      <i class="bi bi-shield-lock"></i> Password Policy
+    </a>
+
+    <div class="sidebar-section mt-2">Operations</div>
+    <a href="/lifecycle" class="nav-link <%= title==='Identity Lifecycle'?'active':'' %>">
+      <i class="bi bi-arrow-repeat"></i> Lifecycle
+    </a>
+    <a href="/logs" class="nav-link <%= title==='Audit Log'?'active':'' %>">
+      <i class="bi bi-journal-text"></i> Audit Log
+    </a>
+    <a href="/policies" class="nav-link <%= title==='Policies'?'active':'' %>">
+      <i class="bi bi-file-earmark-lock"></i> Policies
+    </a>
+
+    <div class="sidebar-footer">
+      <div class="user-info-sidebar">
+        <div class="user-avatar-sm"><%= currentUser.name.split(' ').map(w=>w[0]).join('').slice(0,2) %></div>
+        <div>
+          <div class="fw-500 fs-13"><%= currentUser.name %></div>
+          <div class="text-muted fs-11"><%= currentUser.role %></div>
+        </div>
+      </div>
+      <form action="/logout" method="POST" class="mt-2">
+        <button class="btn btn-sm btn-outline-secondary w-100">
+          <i class="bi bi-box-arrow-right"></i> Sign out
+        </button>
+      </form>
+    </div>
+  </nav>
+
+  <div id="page-content">
+    <div class="topbar">
+      <h5 class="mb-0 fw-500"><%= title %></h5>
+      <div class="d-flex align-items-center gap-2">
+        <% if (currentUser.role === 'Admin' || currentUser.role === 'Owner') { %>
+          <span class="badge-role badge-admin" style="background:#fff3cd;color:#856404;font-size:10px">v2.0 PRO</span>
+        <% } %>
+        <span class="badge-role badge-<%= currentUser.role.toLowerCase() %>"><%= currentUser.role %></span>
+        <span class="text-muted fs-13"><%= currentUser.email %></span>
+      </div>
+    </div>
+
+    <div class="main-body">
+      <% if (success && success.length) { %>
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+          <i class="bi bi-check-circle me-2"></i><%= success %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+      <% if (error && error.length) { %>
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+          <i class="bi bi-exclamation-circle me-2"></i><%= error %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+
+      <%- body %>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>
